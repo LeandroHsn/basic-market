@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-export default function Toast({ message, onClose, duration = 6000 }) {
+export default function Toast({ message, onClose, duration = 4000, type = "success" }) {
   useEffect(() => {
     if (!message) return;
     const timer = setTimeout(onClose, duration);
@@ -10,7 +10,7 @@ export default function Toast({ message, onClose, duration = 6000 }) {
   if (!message) return null;
 
   return (
-    <div className="toast" role="alert" aria-live="assertive">
+    <div className={`toast toast-${type}`} role="alert" aria-live="assertive">
       {message}
     </div>
   );

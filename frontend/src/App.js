@@ -8,6 +8,7 @@ import './App.css';
 function App() {
   const [cart, setCart] = useState([]);
   const [message, setMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
   const [reloadSignal, setReloadSignal] = useState(0);
 
   const addToCart = (product) => {
@@ -40,13 +41,14 @@ function App() {
           quantity: item.quantity
         }))
       });
-      console.log(res.data);
       setMessage(`Pedido criado com sucesso!`);
+      setToastType("success");
       setCart([]);
       setReloadSignal((s) => s + 1); 
     } catch (err) {
+      setToastType("error");
       if (err.response?.status === 409) {
-        setMessage(`Itens indisponíveis: ${JSON.stringify(err.response.data)}`);
+        setMessage(JSON.stringify(err.response.data.message));
       } else {
         setMessage("Erro ao finalizar pedido.");
       }
@@ -61,7 +63,7 @@ function App() {
         </div>
         <Cart cart={cart} updateQuantity={updateQuantity} checkout={checkout} />
       </div>
-      <Toast message={message} onClose={() => setMessage("")} />
+      <Toast message={message} onClose={() => setMessage("")} type={toastType} />
     </div>
   );
 }
