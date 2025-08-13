@@ -18,7 +18,7 @@ import java.util.Optional;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -47,6 +47,6 @@ public class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict()) // 409
-                .andExpect(content().string("Estoque insuficiente para produtos: [Garrafa Térmica 1L]"));
+                .andExpect(jsonPath("$.message").value("Estoque insuficiente para produtos: [Garrafa Térmica 1L]"));
     }
 }

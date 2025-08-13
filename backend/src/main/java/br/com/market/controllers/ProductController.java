@@ -1,31 +1,28 @@
 package br.com.market.controllers;
 
-import br.com.market.models.db.Product;
-import br.com.market.repository.ProductRepository;
+import br.com.market.models.dto.response.ProductResponseDTO;
+import br.com.market.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("products")
 @CrossOrigin
+@RequestMapping("products")
 public class ProductController {
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductService productService;
 
     @GetMapping
-    public Page<Product> listProducts(
+    public ResponseEntity<Page<ProductResponseDTO>> listProducts(
             @RequestParam(defaultValue = "") String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size) {
-        return productRepository.findByNameContainingIgnoreCase(search, PageRequest.of(page, size));
+        return new ResponseEntity<>(productService.searchProducts(search, PageRequest.of(page,  size)), HttpStatus.OK);
     }
 }
 

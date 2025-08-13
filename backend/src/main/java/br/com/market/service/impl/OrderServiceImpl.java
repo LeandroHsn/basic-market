@@ -11,7 +11,9 @@ import br.com.market.service.OrderService;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItemRequestDTO itemReq : request.getItems()) {
             Product product = productRepository.findById(itemReq.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Produto não encontrado."));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado."));
 
             if (product.getStock() < itemReq.getQuantity()) {
                 outOfStock.add(product.getName());
@@ -46,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (!outOfStock.isEmpty()) {
-            throw new RuntimeException("Estoque insuficiente para produtos: " + outOfStock);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Estoque insuficiente para produtos: " + outOfStock);
         }
 
         order.setTotal(total);
@@ -64,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
         try {
             return orderRepository.save(order);
         } catch (OptimisticLockException e) {
-            throw new RuntimeException("Conflito de concorrência. Tente novamente.");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Conflito de concorrência. Tente novamente.");
         }
     }
 }
