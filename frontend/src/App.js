@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import ProductList from "./components/ProductList";
 import Cart from "./components/Cart";
+import Toast from "./components/Toast";
 import { api } from "./api";
+import './App.css';
 
 function App() {
   const [cart, setCart] = useState([]);
   const [message, setMessage] = useState("");
+  const [reloadSignal, setReloadSignal] = useState(0);
 
   const addToCart = (product) => {
     setCart((prev) => {
@@ -23,7 +26,7 @@ function App() {
     setCart((prev) =>
       prev
         .map((item) =>
-          item.id === id ? { ...item, quantity: Math.max(quantity, 1) } : item
+          item.id === id ? { ...item, quantity } : item
         )
         .filter((item) => item.quantity > 0)
     );
@@ -37,8 +40,10 @@ function App() {
           quantity: item.quantity
         }))
       });
-      setMessage(`Pedido criado com sucesso! ID: ${res.data.id}`);
+      console.log(res.data);
+      setMessage(`Pedido criado com sucesso!`);
       setCart([]);
+      setReloadSignal((s) => s + 1); 
     } catch (err) {
       if (err.response?.status === 409) {
         setMessage(`Itens indisponíveis: ${JSON.stringify(err.response.data)}`);
@@ -49,12 +54,14 @@ function App() {
   };
 
   return (
-    <div style={{ display: "flex", gap: "20px" }}>
-      <div>
-        <ProductList addToCart={addToCart} />
-        {message && <p>{message}</p>}
+    <div className="App">
+      <div className="main-content">
+        <div style={{ flex: 2 }}>
+          <ProductList addToCart={addToCart} reloadSignal={reloadSignal} />
+        </div>
+        <Cart cart={cart} updateQuantity={updateQuantity} checkout={checkout} />
       </div>
-      <Cart cart={cart} updateQuantity={updateQuantity} checkout={checkout} />
+      <Toast message={message} onClose={() => setMessage("")} />
     </div>
   );
 }

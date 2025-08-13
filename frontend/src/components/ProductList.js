@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import debounce from "lodash.debounce";
 import { api } from "../api";
 
-export default function ProductList({ addToCart }) {
+export default function ProductList({ addToCart, reloadSignal }) {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
@@ -29,31 +29,67 @@ export default function ProductList({ addToCart }) {
     fetchProducts(search, page);
   }, [page]);
 
+  useEffect(() => {
+    fetchProducts(search, page);
+  }, [reloadSignal]);
+
   return (
-    <div>
-      <input
-        aria-label="Buscar produtos"
-        placeholder="Buscar..."
-        value={search}
-        onChange={(e) => {
-          setSearch(e.target.value);
-          debouncedSearch(e.target.value);
-        }}
-      />
+    <div className="product-list-container">
+      <div className="search-bar">
+        <input
+          type="text"
+          aria-label="Buscar produtos"
+          placeholder="Buscar produtos..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            debouncedSearch(e.target.value);
+          }}
+        />
+      </div>
 
-      <ul>
-        {products.map((p) => (
-          <li key={p.id}>
-            {p.name} - R$ {p.price} - Estoque: {p.stock}
-            <button onClick={() => addToCart(p)}>+</button>
-          </li>
-        ))}
-      </ul>
+      <table className="product-table" aria-label="Lista de produtos">
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Preço</th>
+            <th>Estoque</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((p) => (
+            <tr key={p.id}>
+              <td>{p.name}</td>
+              <td>R$ {p.price}</td>
+              <td>{p.stock}</td>
+              <td>
+                <button
+                  aria-label={`Adicionar ${p.name} ao carrinho`}
+                  onClick={() => addToCart(p)}
+                >+</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-      <div>
-        <button disabled={page === 0} onClick={() => setPage(page - 1)}>Anterior</button>
-        <span>{page + 1} / {totalPages}</span>
-        <button disabled={page + 1 >= totalPages} onClick={() => setPage(page + 1)}>Próximo</button>
+      <div className="pagination">
+        <button
+          aria-label="Página anterior"
+          disabled={page === 0}
+          onClick={() => setPage(page - 1)}
+        >
+          Anterior
+        </button>
+        <span aria-label={`Página ${page + 1} de ${totalPages}`}>{page + 1} / {totalPages}</span>
+        <button
+          aria-label="Próxima página"
+          disabled={page + 1 >= totalPages}
+          onClick={() => setPage(page + 1)}
+        >
+          Próximo
+        </button>
       </div>
     </div>
   );
