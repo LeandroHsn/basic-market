@@ -27,7 +27,6 @@ public class OrderServiceImpl implements OrderService {
     private ProductRepository productRepository;
 
     @Override
-    @Transactional
     public Order createOrder(OrderRequestDTO request) {
         List<String> outOfStock = new ArrayList<>();
         Order order = new Order();
@@ -60,6 +59,7 @@ public class OrderServiceImpl implements OrderService {
         return orderItem.getLineTotal();
     }
 
+    @Transactional
     private Order saveOrder(Order order) {
         try {
             return orderRepository.save(order);
